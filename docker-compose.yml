@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kidsathi
+      POSTGRES_USER: kidsathi
+      POSTGRES_PASSWORD: kidsathi
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kidsathi"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  api:
+    build: .
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://kidsathi:kidsathi@db:5432/kidsathi
+    ports: ["8000:8000"]
+    volumes: [".:/app"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
