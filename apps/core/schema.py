@@ -19,4 +19,3 @@ class KidSathiAutoSchema(AutoSchema):
         if getattr(self.view, "uses_school_header", False):
             params = [*params, SCHOOL_HEADER]
         return params
-        
