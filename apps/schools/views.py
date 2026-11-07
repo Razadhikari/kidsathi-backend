@@ -54,6 +54,7 @@ class ClassroomViewSet(SchoolScopedViewSet):
 class MemberViewSet(mixins.ListModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     """People in the current school. Admins invite and deactivate members."""
 
+    uses_school_header = True
     serializer_class = MemberSerializer
     permission_classes = [school_roles(read={SCHOOL_ADMIN}, write={SCHOOL_ADMIN})]
 

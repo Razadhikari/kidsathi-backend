@@ -6,6 +6,8 @@ from apps.core.tenancy import get_request_school
 class SchoolScopedViewSet(viewsets.ModelViewSet):
     """ModelViewSet that only ever sees rows of the current school."""
 
+    uses_school_header = True
+
     @property
     def school(self):
         return get_request_school(self.request)[0]
