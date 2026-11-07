@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "apps.children",
     "apps.attendance",
     "apps.daily",
+    "apps.messaging",
 ]
 
 MIDDLEWARE = [
