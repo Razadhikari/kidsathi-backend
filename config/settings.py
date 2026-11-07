@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.schools",
     "apps.children",
+    "apps.attendance",
 ]
 
 MIDDLEWARE = [
