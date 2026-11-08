@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "apps.daily",
     "apps.messaging",
     "apps.billing",
+    "apps.photos",
 ]
 
 MIDDLEWARE = [
@@ -141,3 +142,9 @@ LOGGING = {
     "handlers": {"console": {"class": "logging.StreamHandler"}},
     "root": {"handlers": ["console"], "level": os.environ.get("LOG_LEVEL", "INFO")},
 }
+
+# --- Uploaded files (photos) ------------------------------------------------
+# Local disk in development. In production this moves to S3 (private bucket).
+MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "media"))
+MEDIA_URL = "/media/"
+PHOTO_MAX_UPLOAD_MB = 15

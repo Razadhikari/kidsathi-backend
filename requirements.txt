@@ -7,3 +7,5 @@ dj-database-url>=2.2,<3
 psycopg[binary]>=3.2,<4
 nepali-datetime>=1.0.8
 gunicorn>=22,<24
+Pillow>=11.0
+Pillow>=11.0
