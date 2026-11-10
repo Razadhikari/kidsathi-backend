@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ invoice.number }}</title>
+<style>
+  @page { size: A4; margin: 14mm 14mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Noto Sans", "Noto Sans Devanagari", "DejaVu Sans", sans-serif; color: #1F2A5C; font-size: 10pt; margin: 0; }
+  table { width: 100%; border-collapse: collapse; }
+  .ne { font-weight: 400; color: #3E4456; }
+  .double { border-top: 3px double #1F2A5C; margin: 6px 0; }
+  .single { border-top: 1px solid #1F2A5C; margin: 6px 0; }
+
+  .header { text-align: center; }
+  .school { font-size: 18pt; font-weight: 800; letter-spacing: 0.5px; }
+  .school-ne { font-size: 12pt; }
+  .header .line { margin-top: 2px; color: #3E4456; }
+  .title { text-align: center; font-size: 13pt; font-weight: 800; margin: 6px 0 4px; letter-spacing: 1px; }
+
+  .info td { padding: 3px 0; vertical-align: top; }
+  .info .right { text-align: right; }
+  .label { color: #5B6170; }
+
+  .lines { margin-top: 6px; }
+  .lines th { border-top: 1px solid #1F2A5C; border-bottom: 1px solid #1F2A5C; text-align: left; padding: 6px 6px; font-size: 9pt; }
+  .lines td { padding: 6px 6px; border-bottom: 1px dotted #C9C3B6; vertical-align: top; }
+  .lines .sn { width: 7%; }
+  .lines .num { text-align: right; width: 18%; white-space: nowrap; }
+
+  .totals { width: 62%; margin-left: auto; margin-top: 4px; }
+  .totals td { padding: 4px 6px; }
+  .totals .num { text-align: right; white-space: nowrap; width: 38%; }
+  .totals .grand td { border-top: 1px solid #1F2A5C; border-bottom: 1px solid #1F2A5C; font-weight: 800; font-size: 11pt; }
+
+  .words { margin-top: 8px; }
+  .mode td { padding: 3px 0; }
+  .box { display: inline-block; width: 11px; height: 11px; border: 1px solid #1F2A5C; margin-right: 4px; text-align: center; font-size: 8pt; line-height: 11px; }
+
+  .deposit { margin-top: 10px; border: 1px solid #E7E1D6; border-radius: 6px; padding: 8px 10px; }
+  .deposit td { padding: 2px 0; }
+
+  .signs { margin-top: 34px; }
+  .signs td { width: 50%; text-align: center; padding: 0 16px; }
+  .signs .sline { border-top: 1px dashed #1F2A5C; padding-top: 4px; }
+
+  .note { margin-top: 8px; font-size: 9pt; white-space: pre-line; }
+  .footer { margin-top: 6px; font-size: 8pt; color: #5B6170; text-align: center; }
+
+  .stamp { position: absolute; top: 62mm; right: 16mm; transform: rotate(-12deg); border: 4px solid #2E7D5B; color: #2E7D5B;
+           font-size: 24pt; font-weight: 800; padding: 2px 16px; border-radius: 8px; opacity: 0.75; }
+  .stamp.cancelled { border-color: #B4233C; color: #B4233C; }
+</style>
+</head>
+<body>
+  {% if is_paid %}<div class="stamp">PAID</div>{% endif %}
+  {% if is_cancelled %}<div class="stamp cancelled">CANCELLED</div>{% endif %}
+
+  <div class="double"></div>
+  <div class="header">
+    <div class="school">{{ school.name|upper }}</div>
+    {% if school.name_ne %}<div class="school-ne">{{ school.name_ne }}</div>{% endif %}
+    {% if school.address %}<div class="line">{{ school.address }}{% if school.district %}, {{ school.district }}{% endif %}</div>{% endif %}
+    {% if school.pan_number %}<div class="line"><strong>PAN No: {{ school.pan_number }}</strong></div>{% endif %}
+    <div class="line">
+      {% if school.phone %}Phone: {{ school.phone }}{% endif %}
+      {% if school.email %}{% if school.phone %} | {% endif %}Email: {{ school.email }}{% endif %}
+      {% if school.established %} | Estd: {{ school.established }}{% endif %}
+    </div>
+  </div>
+  <div class="double"></div>
+
+  <div class="title">{{ title_en }} / {{ title_ne }}</div>
+
+  <table class="info">
+    <tr>
+      <td><span class="label">Bill No (बिल नं):</span> <strong>{{ invoice.number }}</strong></td>
+      <td class="right">
+        <span class="label">Date (मिति):</span> <strong>{{ issue_bs }} (B.S.)</strong><br>
+        {{ invoice.issue_date|date:"Y/m/d" }} (A.D.)
+      </td>
+    </tr>
+  </table>
+
+  <table class="info" style="margin-top:6px">
+    <tr>
+      <td colspan="3">
+        <span class="label">Student Name (विद्यार्थीको नाम):</span>
+        <strong>{{ child.first_name|upper }} {{ child.last_name|upper }}</strong>
+        {% if child.full_name_ne %}<span class="ne"> ({{ child.full_name_ne }})</span>{% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td><span class="label">Class (कक्षा):</span> {{ classroom|default:"–" }}</td>
+      <td><span class="label">Sec (वर्ग):</span> {{ child.section|default:"–" }}</td>
+      <td><span class="label">Roll No (रोल नं):</span> {{ child.roll_no|default:"–" }}</td>
+    </tr>
+    {% if child.iemis_code %}
+    <tr><td colspan="3"><span class="label">IEMIS / Code No:</span> {{ child.iemis_code }}</td></tr>
+    {% endif %}
+    {% if guardian %}
+    <tr><td colspan="3"><span class="label">Parent (अभिभावक):</span> {{ guardian.full_name }} · {{ guardian.phone_number }}</td></tr>
+    {% endif %}
+    <tr>
+      <td colspan="3">
+        <span class="label">Fee Month (शुल्क महिना):</span> <strong>{{ period }}</strong> <span class="ne">({{ period_ne }})</span>
+        &nbsp;·&nbsp; <span class="label">Due date (भुक्तानी मिति):</span> <strong>{{ due_bs }} (B.S.)</strong>
+      </td>
+    </tr>
+  </table>
+
+  <table class="lines">
+    <thead>
+      <tr>
+        <th class="sn">S.N.</th>
+        <th>Particulars (विवरण)</th>
+        <th class="num">Rate (NPR)</th>
+        <th class="num">Amount (रु.)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for line in lines %}
+      <tr>
+        <td class="sn">{{ line.no }}.</td>
+        <td>{{ line.description }}{% if line.description_ne %} <span class="ne">({{ line.description_ne }})</span>{% endif %}</td>
+        <td class="num">{{ line.rate }}</td>
+        <td class="num">{{ line.amount }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <table class="totals">
+    <tr><td>Sub-Total (उप-जम्मा)</td><td class="num">{{ subtotal }}</td></tr>
+    {% if arrears %}<tr><td>Previous Arrears (अघिल्लो बाँकी)</td><td class="num">{{ arrears }}</td></tr>{% endif %}
+    {% if discount %}<tr><td>Discount (छुट)</td><td class="num">-{{ discount }}</td></tr>{% endif %}
+    <tr class="grand"><td>TOTAL AMOUNT DUE (जम्मा)</td><td class="num">{{ total_due }}</td></tr>
+  </table>
+
+  <div class="words"><span class="label">In Words (अक्षरेपी):</span> <strong>{{ in_words }}</strong></div>
+
+  <div class="single"></div>
+  <table class="mode">
+    <tr>
+      <td>
+        <span class="label">Payment Mode (भुक्तानी तरिका):</span>&nbsp;
+        <span class="box">{% if paid_cash %}X{% endif %}</span>Cash &nbsp;&nbsp;
+        <span class="box">{% if paid_wallet %}X{% endif %}</span>eSewa / Khalti &nbsp;&nbsp;
+        <span class="box">{% if paid_bank %}X{% endif %}</span>Bank Transfer
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="label">Paid Amount (बुझाएको रकम):</span> <strong>NPR {{ paid }}</strong>
+        {% if last_payment %} &nbsp;·&nbsp; <span class="label">on</span> {{ last_payment.paid_on|date:"Y/m/d" }}{% if last_payment.reference %} ({{ last_payment.reference }}){% endif %}{% endif %}
+        {% if not is_paid %} &nbsp;·&nbsp; <span class="label">Balance (बाँकी):</span> <strong>NPR {{ balance }}</strong>{% endif %}
+      </td>
+    </tr>
+  </table>
+
+  {% if school.bank_account_number or school.wallet_info %}
+  <div class="deposit">
+    <strong>Deposit to (रकम जम्मा गर्ने):</strong>
+    <table>
+      {% if school.bank_name %}<tr><td class="label" style="width:30%">Bank</td><td>{{ school.bank_name }}{% if school.bank_branch %}, {{ school.bank_branch }}{% endif %}</td></tr>{% endif %}
+      {% if school.bank_account_name %}<tr><td class="label">Account name</td><td>{{ school.bank_account_name }}</td></tr>{% endif %}
+      {% if school.bank_account_number %}<tr><td class="label">Account no.</td><td><strong>{{ school.bank_account_number }}</strong></td></tr>{% endif %}
+      {% if school.wallet_info %}<tr><td class="label">eSewa / Khalti</td><td>{{ school.wallet_info }}</td></tr>{% endif %}
+      <tr><td class="label">Remarks</td><td>Write <strong>{{ invoice.number }}</strong> when you pay.</td></tr>
+    </table>
+  </div>
+  {% endif %}
+
+  <table class="signs">
+    <tr>
+      <td><div class="sline">Accountant / Cashier Signature</div></td>
+      <td><div class="sline">Parent / Receiver Signature</div></td>
+    </tr>
+  </table>
+
+  <div class="double" style="margin-top:14px"></div>
+  {% if school.invoice_note %}<div class="note">* Note: {{ school.invoice_note }}</div>{% endif %}
+  <div class="footer">Printed {{ printed_bs }} (B.S.) / {{ printed_ad|date:"Y/m/d" }} · Computer-generated with KidSathi</div>
+  <div class="double"></div>
+</body>
+</html>

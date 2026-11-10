@@ -46,6 +46,9 @@ class Child(SchoolScopedModel):
     classroom = models.ForeignKey(
         "schools.Classroom", null=True, blank=True, on_delete=models.SET_NULL, related_name="children"
     )
+    section = models.CharField("Section (वर्ग)", max_length=10, blank=True)
+    roll_no = models.CharField("Roll no.", max_length=10, blank=True)
+    iemis_code = models.CharField("IEMIS student code", max_length=20, blank=True)
     enrolled_on = models.DateField(null=True, blank=True)
     allergies = models.TextField(blank=True, help_text="Visible to staff and the child's guardians only.")
     photo_consent = models.BooleanField(

@@ -21,8 +21,17 @@ class School(BaseModel):
     district = models.CharField(max_length=80, blank=True)
     phone = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
+    established = models.CharField("Established (BS year)", max_length=10, blank=True)
     plan = models.CharField(max_length=16, choices=Plan.choices, default=Plan.TRIAL)
     is_active = models.BooleanField(default=True)
+
+    # --- Shown on invoices: where parents can pay ---
+    bank_name = models.CharField(max_length=120, blank=True)
+    bank_branch = models.CharField(max_length=120, blank=True)
+    bank_account_name = models.CharField(max_length=150, blank=True)
+    bank_account_number = models.CharField(max_length=40, blank=True)
+    wallet_info = models.CharField("eSewa / Khalti / Fonepay ID", max_length=120, blank=True)
+    invoice_note = models.TextField(blank=True, help_text="Printed at the bottom of every invoice.")
 
     class Meta:
         ordering = ["name"]
