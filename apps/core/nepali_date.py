@@ -1,6 +1,7 @@
 """Bikram Sambat (BS) helpers. Dates are stored in AD and shown in BS."""
 
 import datetime
+import re
 
 from django.utils import timezone
 
@@ -25,6 +26,8 @@ BS_MONTHS_EN = [
 ]
 BS_MONTHS_NE = ["बैशाख", "जेठ", "असार", "साउन", "भदौ", "असोज", "कात्तिक", "मंसिर", "पुस", "माघ", "फागुन", "चैत"]
 
+_NEPALI_DIGITS = str.maketrans("०१२३४५६७८९", "0123456789")
+
 
 def to_bs(value: datetime.date | None) -> str | None:
     """Return the BS date as YYYY-MM-DD, or None if it can't be converted."""
@@ -34,6 +37,18 @@ def to_bs(value: datetime.date | None) -> str | None:
         return nepali_datetime.date.from_datetime_date(value).strftime("%Y-%m-%d")
     except (ValueError, OverflowError):
         return None
+
+
+def from_bs(text: str) -> datetime.date:
+    """'2079-05-14', '2079/05/14' or '२०७९-०५-१४' (BS) → AD date. Raises ValueError if invalid."""
+    parts = [p for p in re.split(r"[^0-9]+", text.strip().translate(_NEPALI_DIGITS)) if p]
+    if len(parts) != 3:
+        raise ValueError("expected YYYY-MM-DD")
+    year, month, day = (int(p) for p in parts)
+    try:
+        return nepali_datetime.date(year, month, day).to_datetime_date()
+    except (OverflowError, KeyError, IndexError) as exc:
+        raise ValueError(str(exc)) from exc
 
 
 def bs_month_start(year: int, month: int) -> datetime.date:
