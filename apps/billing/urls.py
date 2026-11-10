@@ -10,5 +10,6 @@ router.register("invoices", views.InvoiceViewSet, basename="invoice")
 
 urlpatterns = [
     path("my/invoices/", views.MyInvoicesView.as_view(), name="my-invoices"),
+    path("public/invoices/<str:token>/", views.public_invoice_pdf, name="public-invoice-pdf"),
     *router.urls,
 ]

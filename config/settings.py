@@ -150,3 +150,8 @@ LOGGING = {
 MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "media"))
 MEDIA_URL = "/media/"
 PHOTO_MAX_UPLOAD_MB = 15
+
+# --- Invoices -----------------------------------------------------------------
+# Base address used in the PDF links sent to parents. Set it to the real domain once deployed.
+PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "http://localhost:8000")
+INVOICE_LINK_DAYS = int(os.environ.get("INVOICE_LINK_DAYS", "90"))

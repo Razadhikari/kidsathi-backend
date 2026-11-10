@@ -10,13 +10,14 @@ MONEY = {"max_digits": 10, "decimal_places": 2}
 
 
 class FeeItem(SchoolScopedModel):
-    """Something the school charges for, e.g. Monthly tuition NPR 8,500."""
+    """Something the school charges for, e.g. Monthly tuition NPR 8,500 or Admission fee (one-time)."""
 
     class Frequency(models.TextChoices):
         MONTHLY = "monthly", "Monthly"
         ONE_TIME = "one_time", "One-time"
 
     name = models.CharField(max_length=100)
+    name_ne = models.CharField("Name in Nepali", max_length=100, blank=True)
     amount = models.DecimalField(**MONEY)
     frequency = models.CharField(max_length=10, choices=Frequency.choices, default=Frequency.MONTHLY)
     is_active = models.BooleanField(default=True)
@@ -36,6 +37,10 @@ class ChildFee(SchoolScopedModel):
     fee_item = models.ForeignKey(FeeItem, on_delete=models.CASCADE, related_name="child_fees")
     amount_override = models.DecimalField(
         null=True, blank=True, help_text="Leave empty to use the fee item's normal amount.", **MONEY
+    )
+    # One-time fees (e.g. admission) are billed once: this points at the invoice that charged it.
+    billed_invoice = models.ForeignKey(
+        "Invoice", null=True, blank=True, on_delete=models.SET_NULL, related_name="one_time_fees"
     )
 
     class Meta:
@@ -57,6 +62,7 @@ class Invoice(SchoolScopedModel):
 
     child = models.ForeignKey("children.Child", on_delete=models.CASCADE, related_name="invoices")
     number = models.CharField(max_length=30)
+    subject = models.CharField(max_length=200, blank=True)
     bs_year = models.PositiveSmallIntegerField()
     bs_month = models.PositiveSmallIntegerField()
     issue_date = models.DateField()
@@ -87,10 +93,12 @@ class Invoice(SchoolScopedModel):
 class InvoiceLine(BaseModel):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="lines")
     description = models.CharField(max_length=150)
+    description_ne = models.CharField(max_length=150, blank=True)
+    rate = models.DecimalField(default=Decimal("0"), help_text="Normal price before any special price.", **MONEY)
     amount = models.DecimalField(**MONEY)
 
     class Meta:
-        ordering = ["description"]
+        ordering = ["created_at", "description"]
 
 
 class Payment(SchoolScopedModel):

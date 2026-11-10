@@ -16,7 +16,7 @@ def same_school(obj, context, label):
 class FeeItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = FeeItem
-        fields = ["id", "name", "amount", "frequency", "is_active"]
+        fields = ["id", "name", "name_ne", "amount", "frequency", "is_active"]
         read_only_fields = ["id"]
 
     def validate_amount(self, value):
@@ -39,11 +39,25 @@ class ChildFeeSerializer(serializers.ModelSerializer):
     child_name = serializers.CharField(source="child.display_name", read_only=True)
     fee_name = serializers.CharField(source="fee_item.name", read_only=True)
     effective_amount = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    already_billed = serializers.SerializerMethodField()
 
     class Meta:
         model = ChildFee
-        fields = ["id", "child", "child_name", "fee_item", "fee_name", "amount_override", "effective_amount"]
+        fields = [
+            "id",
+            "child",
+            "child_name",
+            "fee_item",
+            "fee_name",
+            "amount_override",
+            "effective_amount",
+            "already_billed",
+        ]
         read_only_fields = ["id"]
+
+    def get_already_billed(self, obj) -> bool:
+        """True for a one-time fee that has been put on an invoice already."""
+        return obj.billed_invoice_id is not None
 
     def validate_child(self, child):
         return same_school(child, self.context, "Child")
@@ -65,7 +79,7 @@ class ChildFeeSerializer(serializers.ModelSerializer):
 class InvoiceLineSerializer(serializers.ModelSerializer):
     class Meta:
         model = InvoiceLine
-        fields = ["description", "amount"]
+        fields = ["description", "description_ne", "rate", "amount"]
         read_only_fields = fields
 
 
@@ -89,6 +103,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "number",
+            "subject",
             "child",
             "child_name",
             "bs_year",

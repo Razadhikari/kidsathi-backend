@@ -30,6 +30,8 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+      - name: System libraries for PDF invoices
+        run: sudo apt-get update && sudo apt-get install -y libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 fonts-noto-core
       - run: pip install -r requirements-dev.txt
       - name: Lint
         run: ruff check .

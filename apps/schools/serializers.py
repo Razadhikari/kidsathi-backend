@@ -17,6 +17,13 @@ class SchoolSerializer(serializers.ModelSerializer):
             "district",
             "phone",
             "email",
+            "established",
+            "bank_name",
+            "bank_branch",
+            "bank_account_name",
+            "bank_account_number",
+            "wallet_info",
+            "invoice_note",
             "plan",
             "is_active",
         ]
