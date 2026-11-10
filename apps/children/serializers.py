@@ -148,3 +148,7 @@ class ParentChildSerializer(serializers.ModelSerializer):
 
     def get_date_of_birth_bs(self, obj) -> str | None:
         return to_bs(obj.date_of_birth)
+
+
+class PermanentDeleteSerializer(serializers.Serializer):
+    confirm = serializers.CharField(help_text="The child's full name, typed to confirm.")
