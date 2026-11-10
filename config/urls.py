@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from apps.core.calendar_views import calendar_today
+
 
 def health(_request):
     return JsonResponse({"status": "ok"})
@@ -11,6 +13,7 @@ def health(_request):
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("health/", health),
+    path("api/v1/calendar/today/", calendar_today, name="calendar-today"),
     path("api/v1/auth/", include("apps.accounts.urls")),
     path("api/v1/", include("apps.schools.urls")),
     path("api/v1/", include("apps.children.urls")),
