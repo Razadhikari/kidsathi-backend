@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "apps.messaging",
     "apps.billing",
     "apps.photos",
+    "apps.transport",
 ]
 
 MIDDLEWARE = [
